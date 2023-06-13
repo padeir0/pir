@@ -1,10 +1,10 @@
 package mir
 
 import (
-	mirc "pir/backends/linuxamd64/mir/class"
-	FT "pir/backends/linuxamd64/mir/flowkind"
-	IT "pir/backends/linuxamd64/mir/instrkind"
-	T "pir/types"
+	mirc "github.com/padeir0/pir/backends/linuxamd64/mir/class"
+	FT "github.com/padeir0/pir/backends/linuxamd64/mir/flowkind"
+	IT "github.com/padeir0/pir/backends/linuxamd64/mir/instrkind"
+	T "github.com/padeir0/pir/types"
 	"strconv"
 	"strings"
 )

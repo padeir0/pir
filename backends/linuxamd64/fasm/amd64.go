@@ -1,11 +1,11 @@
 package fasm
 
 import (
-	mir "pir/backends/linuxamd64/mir"
-	mirc "pir/backends/linuxamd64/mir/class"
-	FT "pir/backends/linuxamd64/mir/flowkind"
-	IT "pir/backends/linuxamd64/mir/instrkind"
-	T "pir/types"
+	mir "github.com/padeir0/pir/backends/linuxamd64/mir"
+	mirc "github.com/padeir0/pir/backends/linuxamd64/mir/class"
+	FT "github.com/padeir0/pir/backends/linuxamd64/mir/flowkind"
+	IT "github.com/padeir0/pir/backends/linuxamd64/mir/instrkind"
+	T "github.com/padeir0/pir/types"
 
 	"strconv"
 )

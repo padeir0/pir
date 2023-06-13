@@ -1,13 +1,13 @@
 package checker
 
 import (
-	. "mpc/core"
-	"mpc/core/mir"
-	mirc "mpc/core/mir/class"
-	FT "mpc/core/mir/flowkind"
-	IT "mpc/core/mir/instrkind"
-	T "mpc/core/types"
-	eu "mpc/core/util"
+	"github.com/padeir0/pir/backends/linuxamd64/mir"
+	mirc "github.com/padeir0/pir/backends/linuxamd64/mir/class"
+	FT "github.com/padeir0/pir/backends/linuxamd64/mir/flowkind"
+	IT "github.com/padeir0/pir/backends/linuxamd64/mir/instrkind"
+	. "github.com/padeir0/pir/errors"
+	eu "github.com/padeir0/pir/errors/util"
+	T "github.com/padeir0/pir/types"
 
 	"strconv"
 	"strings"

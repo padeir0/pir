@@ -2,9 +2,9 @@ package errors
 
 import (
 	"fmt"
+	et "github.com/padeir0/pir/errors/errorkind"
+	sv "github.com/padeir0/pir/errors/severity"
 	"io/ioutil"
-	et "pir/errors/errorkind"
-	sv "pir/errors/severity"
 	"strconv"
 )
 

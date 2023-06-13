@@ -1,8 +1,8 @@
 package util
 
 import (
-	"pir"
-	IT "pir/instrkind"
+	"github.com/padeir0/pir"
+	IT "github.com/padeir0/pir/instrkind"
 )
 
 func StorePtr(source, ptr pir.Operand) pir.Instr {

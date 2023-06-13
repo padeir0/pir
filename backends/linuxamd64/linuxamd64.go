@@ -1,10 +1,10 @@
 package linuxamd64
 
 import (
-	"pir"
-	"pir/backends/linuxamd64/fasm"
-	"pir/backends/linuxamd64/resalloc"
-	"pir/checker"
+	"github.com/padeir0/pir"
+	"github.com/padeir0/pir/backends/linuxamd64/fasm"
+	"github.com/padeir0/pir/backends/linuxamd64/resalloc"
+	"github.com/padeir0/pir/checker"
 )
 
 func GenerateFasm(p *pir.Program) string {

@@ -1,14 +1,14 @@
 package checker
 
 import (
-	. "pir/errors"
+	. "github.com/padeir0/pir/errors"
 
-	hir "pir"
-	hirc "pir/class"
-	eu "pir/errors/util"
-	FT "pir/flowkind"
-	IT "pir/instrkind"
-	T "pir/types"
+	hir "github.com/padeir0/pir"
+	hirc "github.com/padeir0/pir/class"
+	eu "github.com/padeir0/pir/errors/util"
+	FT "github.com/padeir0/pir/flowkind"
+	IT "github.com/padeir0/pir/instrkind"
+	T "github.com/padeir0/pir/types"
 
 	"strconv"
 	"strings"

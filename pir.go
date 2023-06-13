@@ -2,10 +2,10 @@ package pir
 
 import (
 	"fmt"
-	hirc "pir/class"
-	FT "pir/flowkind"
-	IT "pir/instrkind"
-	T "pir/types"
+	hirc "github.com/padeir0/pir/class"
+	FT "github.com/padeir0/pir/flowkind"
+	IT "github.com/padeir0/pir/instrkind"
+	T "github.com/padeir0/pir/types"
 	"strconv"
 	"strings"
 )

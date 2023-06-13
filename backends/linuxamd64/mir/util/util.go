@@ -1,8 +1,8 @@
 package util
 
 import (
-	"pir/backends/linuxamd64/mir"
-	mik "pir/backends/linuxamd64/mir/instrkind"
+	"github.com/padeir0/pir/backends/linuxamd64/mir"
+	mik "github.com/padeir0/pir/backends/linuxamd64/mir/instrkind"
 )
 
 func Load(source, destination mir.Operand) mir.Instr {

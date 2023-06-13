@@ -1,19 +1,19 @@
 package resalloc
 
 import (
-	hir "pir"
-	hc "pir/class"
-	hfk "pir/flowkind"
-	hik "pir/instrkind"
+	hir "github.com/padeir0/pir"
+	hc "github.com/padeir0/pir/class"
+	hfk "github.com/padeir0/pir/flowkind"
+	hik "github.com/padeir0/pir/instrkind"
 
-	mir "pir/backends/linuxamd64/mir"
-	mc "pir/backends/linuxamd64/mir/class"
-	mfk "pir/backends/linuxamd64/mir/flowkind"
-	mik "pir/backends/linuxamd64/mir/instrkind"
+	mir "github.com/padeir0/pir/backends/linuxamd64/mir"
+	mc "github.com/padeir0/pir/backends/linuxamd64/mir/class"
+	mfk "github.com/padeir0/pir/backends/linuxamd64/mir/flowkind"
+	mik "github.com/padeir0/pir/backends/linuxamd64/mir/instrkind"
 
-	T "pir/types"
+	T "github.com/padeir0/pir/types"
 
-	IRU "pir/backends/linuxamd64/mir/util"
+	IRU "github.com/padeir0/pir/backends/linuxamd64/mir/util"
 
 	"strconv"
 	"strings"
