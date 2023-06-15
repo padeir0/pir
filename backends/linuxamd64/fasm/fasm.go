@@ -7,6 +7,7 @@ import (
 	IT "github.com/padeir0/pir/backends/linuxamd64/mir/instrkind"
 	T "github.com/padeir0/pir/types"
 
+	"fmt"
 	"strconv"
 )
 
@@ -881,5 +882,6 @@ func genInstrName(instr mir.Instr) string {
 			return Setle
 		}
 	}
+	fmt.Println(instr)
 	panic("unimplemented")
 }
