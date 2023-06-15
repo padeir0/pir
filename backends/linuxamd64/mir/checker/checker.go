@@ -45,7 +45,8 @@ func (r *region) String() string {
 
 func (r *region) Store(i uint64, op mir.Operand) {
 	if i >= uint64(len(*r)) {
-		*r = append(*r, newRegion(i-uint64(len(*r)+1))...)
+		amount := 1 + i - uint64(len(*r))
+		*r = append(*r, newRegion(amount)...)
 	}
 	(*r)[i] = mir.OptOperand_(op)
 }
