@@ -263,14 +263,14 @@ func (this *Flow) StrRets() string {
 type Operand struct {
 	Class hirc.Class
 	Type  *T.Type
-	Num   int64
+	Num   uint64
 }
 
 func (this *Operand) String() string {
 	if this == nil {
 		return "nil"
 	}
-	value := strconv.FormatInt(this.Num, 10)
+	value := strconv.FormatUint(this.Num, 10)
 	switch this.Class {
 	case hirc.Temp:
 		return "'" + value + ":" + this.Type.String()

@@ -250,14 +250,14 @@ type OptOperand struct {
 type Operand struct {
 	Class mirc.Class
 	Type  *T.Type
-	Num   int64
+	Num   uint64
 }
 
 func (o *Operand) String() string {
 	if o == nil {
 		return "nil"
 	}
-	value := strconv.FormatInt(o.Num, 10)
+	value := strconv.FormatUint(o.Num, 10)
 	switch o.Class {
 	case mirc.Lit:
 		return value

@@ -124,12 +124,17 @@ func (this *amd64Instr) String() string {
 }
 
 const (
-	Add  = "add"
-	Sub  = "sub"
-	Neg  = "neg"
+	Add = "add"
+	Sub = "sub"
+	Neg = "neg"
+	//signed
 	IMul = "imul"
 	IDiv = "idiv"
-	Xor  = "xor"
+	//unsigned
+	Mul = "mul"
+	Div = "div"
+
+	Xor = "xor"
 
 	Mov   = "mov"
 	Movsx = "movsx"
@@ -143,10 +148,16 @@ const (
 
 	Sete  = "sete"
 	Setne = "setne"
+	// signed
 	Setg  = "setg"
 	Setge = "setge"
 	Setl  = "setl"
 	Setle = "setle"
+	// unsigned
+	Seta  = "seta"
+	Setae = "setae"
+	Setb  = "setb"
+	Setbe = "setbe"
 
 	Jmp = "jmp"
 	Je  = "je"
@@ -474,6 +485,7 @@ func genInstr(P *mir.Program, proc *mir.Procedure, instr mir.Instr) []*amd64Inst
 	}
 }
 
+// uint -> int and int -> uint are "converted" xD
 func genConvert(P *mir.Program, proc *mir.Procedure, instr mir.Instr) []*amd64Instr {
 	if instr.Dest.Type.Size() > instr.A.Type.Size() {
 		newA := convertOptOperandProc(P, proc, instr.A)
@@ -555,20 +567,11 @@ func genUnaryMinus(P *mir.Program, proc *mir.Procedure, instr mir.Instr) []*amd6
 	}
 }
 
-var compInstrMap = map[IT.InstrKind]string{
-	IT.Eq:     Sete,
-	IT.Diff:   Setne,
-	IT.Less:   Setl,
-	IT.More:   Setg,
-	IT.MoreEq: Setge,
-	IT.LessEq: Setle,
-}
-
 func genComp(P *mir.Program, proc *mir.Procedure, instr mir.Instr) []*amd64Instr {
 	newOp1 := convertOptOperandProc(P, proc, instr.A)
 	newOp2 := convertOptOperandProc(P, proc, instr.B)
 	newDest := convertOptOperandProc(P, proc, instr.Dest)
-	newInstr := compInstrMap[instr.T]
+	newInstr := genInstrName(instr)
 	if instr.A.Class == mirc.Lit || instr.A.Class == mirc.Static {
 		rbx := genReg(RBX, instr.A.Type)
 		return []*amd64Instr{
@@ -584,6 +587,7 @@ func genComp(P *mir.Program, proc *mir.Procedure, instr mir.Instr) []*amd64Instr
 }
 
 func genDiv(P *mir.Program, proc *mir.Procedure, instr mir.Instr) []*amd64Instr {
+	instrName := genInstrName(instr)
 	newOp1 := convertOptOperandProc(P, proc, instr.A)
 	newOp2 := convertOptOperandProc(P, proc, instr.B)
 	newDest := convertOptOperandProc(P, proc, instr.Dest)
@@ -593,19 +597,21 @@ func genDiv(P *mir.Program, proc *mir.Procedure, instr mir.Instr) []*amd64Instr 
 			genBinInstr(Xor, RDX.QWord, RDX.QWord),
 			genMov(genReg(RAX, instr.Type), newOp1),
 			genMov(rbx, newOp2),
-			genUnaryInstr(IDiv, rbx),
+			genUnaryInstr(instrName, rbx),
 			genMov(newDest, genReg(RAX, instr.Type)),
 		}
 	}
 	return []*amd64Instr{
 		genBinInstr(Xor, RDX.QWord, RDX.QWord),
 		genMov(genReg(RAX, instr.Type), newOp1),
-		genUnaryInstr(IDiv, newOp2),
+		genUnaryInstr(instrName, newOp2),
 		genMov(newDest, genReg(RAX, instr.Type)),
 	}
 }
 
 func genRem(P *mir.Program, proc *mir.Procedure, instr mir.Instr) []*amd64Instr {
+	instrName := genInstrName(instr)
+
 	newOp1 := convertOptOperandProc(P, proc, instr.A)
 	newOp2 := convertOptOperandProc(P, proc, instr.B)
 	newDest := convertOptOperandProc(P, proc, instr.Dest)
@@ -615,28 +621,20 @@ func genRem(P *mir.Program, proc *mir.Procedure, instr mir.Instr) []*amd64Instr 
 			genBinInstr(Xor, RDX.QWord, RDX.QWord),
 			genMov(genReg(RAX, instr.Type), newOp1),
 			genMov(rbx, newOp2),
-			genUnaryInstr(IDiv, rbx),
+			genUnaryInstr(instrName, rbx),
 			genMov(newDest, genReg(RDX, instr.Type)),
 		}
 	}
 	return []*amd64Instr{
 		genBinInstr(Xor, RDX.QWord, RDX.QWord),
 		genMov(genReg(RAX, instr.Type), newOp1),
-		genUnaryInstr(IDiv, newOp2),
+		genUnaryInstr(instrName, newOp2),
 		genMov(newDest, genReg(RDX, instr.Type)),
 	}
 }
 
-var BinInstrMap = map[IT.InstrKind]string{
-	IT.Add:  Add,
-	IT.Sub:  Sub,
-	IT.Mult: IMul,
-	IT.And:  And,
-	IT.Or:   Or,
-}
-
 func genSub(P *mir.Program, proc *mir.Procedure, instr mir.Instr) []*amd64Instr {
-	sub := BinInstrMap[instr.T]
+	sub := genInstrName(instr)
 
 	if areOpEqual(instr.A, instr.Dest) {
 		newOp1 := convertOptOperandProc(P, proc, instr.B)
@@ -670,7 +668,7 @@ func genSub(P *mir.Program, proc *mir.Procedure, instr mir.Instr) []*amd64Instr 
 
 func genBin(P *mir.Program, proc *mir.Procedure, instr mir.Instr) []*amd64Instr {
 	dest, op, ok := convertToTwoAddr(instr)
-	newInstr := BinInstrMap[instr.T]
+	newInstr := genInstrName(instr)
 	if ok {
 		newOp1 := convertOperandProc(P, proc, op)
 		newDest := convertOperandProc(P, proc, dest)
@@ -737,39 +735,39 @@ func areOpEqual(a, b mir.OptOperand) bool {
 }
 
 func convertOperandProc(P *mir.Program, proc *mir.Procedure, op mir.Operand) string {
-	return convertOperand(P, op, int64(proc.NumOfVars), int64(proc.NumOfSpills), int64(proc.NumOfMaxCalleeArguments))
+	return convertOperand(P, op, uint64(proc.NumOfVars), uint64(proc.NumOfSpills), uint64(proc.NumOfMaxCalleeArguments))
 }
 
 func convertOptOperandProc(P *mir.Program, proc *mir.Procedure, op mir.OptOperand) string {
 	if !op.Valid {
 		panic("invalid operand")
 	}
-	return convertOperand(P, op.Operand, int64(proc.NumOfVars), int64(proc.NumOfSpills), int64(proc.NumOfMaxCalleeArguments))
+	return convertOperand(P, op.Operand, uint64(proc.NumOfVars), uint64(proc.NumOfSpills), uint64(proc.NumOfMaxCalleeArguments))
 }
 
-func convertOperand(P *mir.Program, op mir.Operand, NumOfVars, NumOfSpills, NumOfMaxCalleeArguments int64) string {
+func convertOperand(P *mir.Program, op mir.Operand, NumOfVars, NumOfSpills, NumOfMaxCalleeArguments uint64) string {
 	switch op.Class {
 	case mirc.Register:
 		return getReg(op.Num, op.Type)
 	case mirc.CallerInterproc:
 		//        v must jump last rbp + return address
 		offset := 16 + op.Num*8
-		return genType(op.Type) + "[rbp + " + strconv.FormatInt(offset, 10) + "]"
+		return genType(op.Type) + "[rbp + " + strconv.FormatUint(offset, 10) + "]"
 	case mirc.Local:
 		//        v begins at 8 because rbp points to the last rbp
 		offset := 8 + op.Num*8
-		return genType(op.Type) + "[rbp - " + strconv.FormatInt(offset, 10) + "]"
+		return genType(op.Type) + "[rbp - " + strconv.FormatUint(offset, 10) + "]"
 	case mirc.Spill:
 		offset := 8 + NumOfVars*8 + op.Num*8
-		return genType(op.Type) + "[rbp - " + strconv.FormatInt(offset, 10) + "]"
+		return genType(op.Type) + "[rbp - " + strconv.FormatUint(offset, 10) + "]"
 	case mirc.CalleeInterproc:
 		offset := 8 + NumOfVars*8 +
 			NumOfSpills*8 +
 			// v count                   v index
 			(NumOfMaxCalleeArguments-1-op.Num)*8
-		return genType(op.Type) + "[rbp - " + strconv.FormatInt(offset, 10) + "]"
+		return genType(op.Type) + "[rbp - " + strconv.FormatUint(offset, 10) + "]"
 	case mirc.Lit:
-		return strconv.FormatInt(op.Num, 10)
+		return strconv.FormatUint(op.Num, 10)
 	case mirc.Static:
 		sy := P.Symbols[op.Num]
 		if sy.Proc != nil {
@@ -780,8 +778,8 @@ func convertOperand(P *mir.Program, op mir.Operand, NumOfVars, NumOfSpills, NumO
 	panic("unimplemented: " + op.String())
 }
 
-func getReg(num int64, t *T.Type) string {
-	if num > int64(len(Registers)) || num < 0 {
+func getReg(num uint64, t *T.Type) string {
+	if num > uint64(len(Registers)) || num < 0 {
 		panic("oh no")
 	}
 	r := Registers[num]
@@ -825,4 +823,63 @@ func genType(t *T.Type) string {
 		return "qword"
 	}
 	panic(t.String())
+}
+
+func genInstrName(instr mir.Instr) string {
+	if T.IsInt(instr.Type) {
+		switch instr.T {
+		case IT.Add:
+			return Add
+		case IT.Sub:
+			return Sub
+		case IT.Mult:
+			return IMul
+		case IT.Div:
+			return IDiv
+		case IT.And:
+			return And
+		case IT.Or:
+			return Or
+		case IT.Eq:
+			return Sete
+		case IT.Diff:
+			return Setne
+		case IT.Less:
+			return Setl
+		case IT.More:
+			return Setg
+		case IT.MoreEq:
+			return Setge
+		case IT.LessEq:
+			return Setle
+		}
+	} else {
+		switch instr.T {
+		case IT.Add:
+			return Add
+		case IT.Sub:
+			return Sub
+		case IT.Mult:
+			return Mul
+		case IT.Div:
+			return Div
+		case IT.And:
+			return And
+		case IT.Or:
+			return Or
+		case IT.Eq:
+			return Sete
+		case IT.Diff:
+			return Setne
+		case IT.Less:
+			return Setl
+		case IT.More:
+			return Setg
+		case IT.MoreEq:
+			return Setge
+		case IT.LessEq:
+			return Setle
+		}
+	}
+	panic("unimplemented")
 }

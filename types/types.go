@@ -21,6 +21,14 @@ func (t *Type) String() string {
 		return "i32"
 	case I64:
 		return "i64"
+	case U8:
+		return "u8"
+	case U16:
+		return "u16"
+	case U32:
+		return "u32"
+	case U64:
+		return "u64"
 	case Bool:
 		return "bool"
 	case Ptr:
@@ -59,13 +67,13 @@ func (this *Type) Size() int {
 		switch this.Basic {
 		case Bool:
 			return 1
-		case I8:
+		case I8, U8:
 			return 1
-		case I16:
+		case I16, U16:
 			return 2
-		case I32:
+		case I32, U32:
 			return 4
-		case I64:
+		case I64, U64:
 			return 8
 		case Ptr:
 			return 8
@@ -119,6 +127,10 @@ var T_I64 = &Type{Basic: I64}
 var T_I32 = &Type{Basic: I32}
 var T_I16 = &Type{Basic: I16}
 var T_I8 = &Type{Basic: I8}
+var T_U64 = &Type{Basic: U64}
+var T_U32 = &Type{Basic: U32}
+var T_U16 = &Type{Basic: U16}
+var T_U8 = &Type{Basic: U8}
 var T_Bool = &Type{Basic: Bool}
 var T_Ptr = &Type{Basic: Ptr}
 var T_Void = &Type{Special: Void}
@@ -135,6 +147,10 @@ const (
 	I16
 	I32
 	I64
+	U8
+	U16
+	U32
+	U64
 	Ptr
 )
 
@@ -189,7 +205,34 @@ func IsNumber(t *Type) bool {
 		b == I16 ||
 		b == I32 ||
 		b == I64 ||
+		b == U8 ||
+		b == U16 ||
+		b == U32 ||
+		b == U64 ||
 		b == Ptr
+}
+
+func IsInt(t *Type) bool {
+	if !IsBasic(t) {
+		return false
+	}
+	b := t.Basic
+	return b == I8 ||
+		b == I16 ||
+		b == I32 ||
+		b == I64 ||
+		b == Ptr // pointers are considered signed integers
+}
+
+func IsUint(t *Type) bool {
+	if !IsBasic(t) {
+		return false
+	}
+	b := t.Basic
+	return b == U8 ||
+		b == U16 ||
+		b == U32 ||
+		b == U64
 }
 
 func IsPtr(t *Type) bool {
