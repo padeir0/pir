@@ -31,7 +31,7 @@ func Check(P *mir.Program) *Error {
 
 type region []mir.OptOperand
 
-func newRegion(size int64) region {
+func newRegion(size uint64) region {
 	return make(region, size)
 }
 
@@ -43,15 +43,15 @@ func (r *region) String() string {
 	return strings.Join(output, ", ")
 }
 
-func (r *region) Store(i int64, op mir.Operand) {
-	if i >= int64(len(*r)) {
-		*r = append(*r, newRegion(i-int64(len(*r)+1))...)
+func (r *region) Store(i uint64, op mir.Operand) {
+	if i >= uint64(len(*r)) {
+		*r = append(*r, newRegion(i-uint64(len(*r)+1))...)
 	}
 	(*r)[i] = mir.OptOperand_(op)
 }
 
-func (r *region) Load(i int64) (mir.Operand, bool) {
-	if i >= int64(len(*r)) {
+func (r *region) Load(i uint64) (mir.Operand, bool) {
+	if i >= uint64(len(*r)) {
 		return mir.Operand{}, false
 	}
 	op := (*r)[i]
@@ -91,12 +91,12 @@ func newState(M *mir.Program) *state {
 
 func (s *state) Init() {
 	for i, arg := range s.proc.Args {
-		argOp := newCallerOperand(arg, int64(i))
-		s.CallerInterproc.Store(int64(i), argOp)
+		argOp := newCallerOperand(arg, uint64(i))
+		s.CallerInterproc.Store(uint64(i), argOp)
 	}
 	for i, loc := range s.proc.Vars {
-		locOp := newCallerOperand(loc, int64(i))
-		s.Locals.Store(int64(i), locOp)
+		locOp := newCallerOperand(loc, uint64(i))
+		s.Locals.Store(uint64(i), locOp)
 	}
 }
 
@@ -139,7 +139,7 @@ func (s *state) SetReg(op mir.Operand) {
 	s.Registers.Store(op.Num, op)
 }
 
-func newCallerOperand(t *T.Type, i int64) mir.Operand {
+func newCallerOperand(t *T.Type, i uint64) mir.Operand {
 	return mir.Operand{
 		Class: mirc.CallerInterproc,
 		Num:   i,
@@ -147,7 +147,7 @@ func newCallerOperand(t *T.Type, i int64) mir.Operand {
 	}
 }
 
-func newLocalOperand(t *T.Type, i int64) mir.Operand {
+func newLocalOperand(t *T.Type, i uint64) mir.Operand {
 	return mir.Operand{
 		Class: mirc.Local,
 		Num:   i,
@@ -193,7 +193,7 @@ func checkJump(s *state) *Error {
 
 func checkRet(s *state) *Error {
 	for i, ret := range s.proc.Rets {
-		op, ok := s.CallerInterproc.Load(int64(i))
+		op, ok := s.CallerInterproc.Load(uint64(i))
 		if !ok {
 			return eu.NewInternalSemanticError("return stack is empty, expected returns: " + s.proc.StrRets())
 		}
@@ -550,7 +550,7 @@ func checkCall(s *state, instr mir.Instr) *Error {
 	t := instr.A.Type
 
 	for i, formal_arg := range t.Proc.Args {
-		real_arg, ok := s.CalleeInterproc.Load(int64(i))
+		real_arg, ok := s.CalleeInterproc.Load(uint64(i))
 		if !ok {
 			return errorCallLoadingGarbage(instr)
 		}
@@ -561,8 +561,8 @@ func checkCall(s *state, instr mir.Instr) *Error {
 	}
 
 	for i, formal_ret := range t.Proc.Rets {
-		op := mir.Operand{Class: mirc.CalleeInterproc, Num: int64(i), Type: formal_ret}
-		s.CalleeInterproc.Store(int64(i), op)
+		op := mir.Operand{Class: mirc.CalleeInterproc, Num: uint64(i), Type: formal_ret}
+		s.CalleeInterproc.Store(uint64(i), op)
 	}
 	return nil
 }
