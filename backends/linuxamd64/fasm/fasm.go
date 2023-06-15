@@ -835,7 +835,7 @@ func genInstrName(instr mir.Instr) string {
 			return Sub
 		case IT.Mult:
 			return IMul
-		case IT.Div:
+		case IT.Div, IT.Rem:
 			return IDiv
 		case IT.And:
 			return And
@@ -862,7 +862,7 @@ func genInstrName(instr mir.Instr) string {
 			return Sub
 		case IT.Mult:
 			return Mul
-		case IT.Div:
+		case IT.Div, IT.Rem:
 			return Div
 		case IT.And:
 			return And
