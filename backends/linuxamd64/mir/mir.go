@@ -67,14 +67,14 @@ func (this *Symbol) String() string {
 type MemoryDecl struct {
 	Label string
 	Data  string
-	Size  int64
+	Size  uint64
 }
 
 func (this *MemoryDecl) String() string {
 	if this.Data != "" {
 		return this.Label + ": " + this.Data
 	}
-	return this.Label + ": " + strconv.FormatInt(this.Size, 10)
+	return this.Label + ": " + strconv.FormatUint(this.Size, 10)
 }
 
 type Procedure struct {

@@ -289,7 +289,7 @@ func genMem(mem *mir.MemoryDecl) *fasmData {
 	if mem.Data == "" {
 		return &fasmData{
 			label:    mem.Label,
-			content:  strconv.FormatInt(mem.Size, 10),
+			content:  strconv.FormatUint(mem.Size, 10),
 			declared: false,
 		}
 	}
