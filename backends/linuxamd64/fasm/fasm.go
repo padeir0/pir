@@ -135,20 +135,23 @@ const (
 	Mul = "mul"
 	Div = "div"
 
-	Xor = "xor"
-
 	Mov   = "mov"
 	Movsx = "movsx"
 	Push  = "push"
 	Pop   = "pop"
 
+	Not = "not"
 	And = "and"
 	Or  = "or"
+	Xor = "xor"
+	Sal = "sal"
+	Sar = "sar"
 
 	Cmp = "cmp"
 
 	Sete  = "sete"
 	Setne = "setne"
+
 	// signed
 	Setg  = "setg"
 	Setge = "setge"
@@ -457,7 +460,7 @@ func genCode(P *mir.Program, proc *mir.Procedure, block *mir.BasicBlock) *fasmBl
 
 func genInstr(P *mir.Program, proc *mir.Procedure, instr mir.Instr) []*amd64Instr {
 	switch instr.T {
-	case IT.Add, IT.Mult, IT.Or, IT.And:
+	case IT.Add, IT.Mult, IT.Or, IT.And, IT.Xor, IT.ShiftLeft, IT.ShiftRight:
 		return genSimpleBin(P, proc, instr)
 	case IT.Sub:
 		return genSub(P, proc, instr)
@@ -546,12 +549,21 @@ func genStorePtr(P *mir.Program, proc *mir.Procedure, instr mir.Instr) []*amd64I
 }
 
 func genNot(P *mir.Program, proc *mir.Procedure, instr mir.Instr) []*amd64Instr {
-	newA := convertOptOperandProc(P, proc, instr.A)
-	newDest := convertOptOperandProc(P, proc, instr.Dest)
-	return []*amd64Instr{
-		bin(Cmp, newA, "0"),
-		unary(Sete, newDest),
+	if instr.Type.Basic == T.Bool {
+		newA := convertOptOperandProc(P, proc, instr.A)
+		newDest := convertOptOperandProc(P, proc, instr.Dest)
+		return []*amd64Instr{
+			bin(Cmp, newA, "0"),
+			unary(Sete, newDest),
+		}
 	}
+	out, newA := resolveOperand(P, proc, instr.A.Operand)
+	newDest := convertOptOperandProc(P, proc, instr.Dest)
+	out = append(out, []*amd64Instr{
+		mov(newDest, newA),
+		unary(Not, newDest),
+	}...)
+	return out
 }
 
 func genUnaryMinus(P *mir.Program, proc *mir.Procedure, instr mir.Instr) []*amd64Instr {
@@ -831,60 +843,45 @@ func genType(t *T.Type) string {
 }
 
 func genInstrName(instr mir.Instr) string {
-	if T.IsInt(instr.Type) {
-		switch instr.T {
-		case IT.Add:
-			return Add
-		case IT.Sub:
-			return Sub
-		case IT.Mult:
+	switch instr.T {
+	case IT.Add:
+		return Add
+	case IT.Sub:
+		return Sub
+	case IT.Mult:
+		if T.IsInt(instr.Type) {
 			return IMul
-		case IT.Div, IT.Rem:
-			return IDiv
-		case IT.And:
-			return And
-		case IT.Or:
-			return Or
-		case IT.Eq:
-			return Sete
-		case IT.Diff:
-			return Setne
-		case IT.Less:
-			return Setl
-		case IT.More:
-			return Setg
-		case IT.MoreEq:
-			return Setge
-		case IT.LessEq:
-			return Setle
-		}
-	} else {
-		switch instr.T {
-		case IT.Add:
-			return Add
-		case IT.Sub:
-			return Sub
-		case IT.Mult:
+		} else {
 			return Mul
-		case IT.Div, IT.Rem:
-			return Div
-		case IT.And:
-			return And
-		case IT.Or:
-			return Or
-		case IT.Eq:
-			return Sete
-		case IT.Diff:
-			return Setne
-		case IT.Less:
-			return Setl
-		case IT.More:
-			return Setg
-		case IT.MoreEq:
-			return Setge
-		case IT.LessEq:
-			return Setle
 		}
+	case IT.Div, IT.Rem:
+		if T.IsInt(instr.Type) {
+			return IDiv
+		} else {
+			return Div
+		}
+	case IT.And:
+		return And
+	case IT.Or:
+		return Or
+	case IT.Xor:
+		return Xor
+	case IT.ShiftLeft:
+		return Sal
+	case IT.ShiftRight:
+		return Sar
+	case IT.Eq:
+		return Sete
+	case IT.Diff:
+		return Setne
+	case IT.Less:
+		return Setl
+	case IT.More:
+		return Setg
+	case IT.MoreEq:
+		return Setge
+	case IT.LessEq:
+		return Setle
 	}
 	fmt.Println(instr)
 	panic("unimplemented")

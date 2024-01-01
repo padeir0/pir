@@ -192,10 +192,12 @@ func checkInstr(s *state, instr hir.Instr) *Error {
 		return checkArith(instr)
 	case IT.Eq, IT.Diff, IT.Less, IT.More, IT.LessEq, IT.MoreEq:
 		return checkComp(instr)
-	case IT.Or, IT.And:
+	case IT.Or, IT.And, IT.Xor:
 		return checkLogical(instr)
 	case IT.Not:
 		return checkNot(instr)
+	case IT.ShiftRight, IT.ShiftLeft:
+		return checkShift(instr)
 	case IT.Neg:
 		return checkUnaryArith(instr)
 	case IT.Convert:
@@ -253,7 +255,22 @@ func checkLogical(instr hir.Instr) *Error {
 	if err != nil {
 		return err
 	}
-	return checkBinary(instr, bool_oper, bool_oper, bool_res)
+	return checkBinary(instr, basic_oper, basic_oper, basic_res)
+}
+
+func checkShift(instr hir.Instr) *Error {
+	err := checkForm(instr, 2, true)
+	if err != nil {
+		return err
+	}
+	a := instr.Operands[0]
+	b := instr.Operands[1]
+	dest := instr.Destination[0]
+	err = checkEqual(instr, instr.Type, a.Type, b.Type, dest.Type)
+	if err != nil {
+		return err
+	}
+	return checkBinary(instr, num_oper, num_oper, num_res)
 }
 
 func checkUnaryArith(instr hir.Instr) *Error {
@@ -281,7 +298,7 @@ func checkNot(instr hir.Instr) *Error {
 	if err != nil {
 		return err
 	}
-	return checkUnary(instr, bool_oper, bool_res)
+	return checkUnary(instr, basic_oper, basic_res)
 }
 
 func checkConvert(instr hir.Instr) *Error {

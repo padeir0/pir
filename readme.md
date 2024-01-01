@@ -8,6 +8,11 @@ Millipascal's frontend, using it's test suite.
 
 Goals:
 
- - [ ] Have unsigned integers (`u8`, `u16`, `u32`, `u64`)
+ - [x] Have unsigned integers (`u8`, `u16`, `u32`, `u64`)
+ - [x] Have bitwise operations (left-shift, right-shift, bitwise-or, bitwise-and, bitwise-not, bitwise-xor)
+ - [ ] Have special read-only pointers to the stack top and frame init
+ - [ ] Allow metadata to be stored in stack frames
+ - [ ] Have malloc/free builtins (not dependent on C)
  - [ ] Have floats (`f32`, `f64`)
- - [ ] Have malloc/free builtins
+ - [ ] Have FFI to C procedures
+ - [ ] Compile to JS or WASM

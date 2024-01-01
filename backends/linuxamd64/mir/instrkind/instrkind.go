@@ -34,6 +34,12 @@ func (i InstrKind) String() string {
 		return "or"
 	case And:
 		return "and"
+	case Xor:
+		return "xor"
+	case ShiftLeft:
+		return "sal"
+	case ShiftRight:
+		return "sar"
 	case Not:
 		return "not"
 	case Convert:
@@ -72,6 +78,10 @@ const (
 
 	Or
 	And
+	Xor
+
+	ShiftLeft
+	ShiftRight
 
 	Not
 	Neg
