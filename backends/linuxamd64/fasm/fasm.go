@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-func Generate(P *mir.Program) *FasmProgram {
+func Generate(P *mir.Program, outname string) *FasmProgram {
 	output := &fasmProgram{
 		executable: []*fasmProc{genWrite(P), genRead(P), genError(P)},
 		data:       []*fasmData{},
@@ -29,9 +29,12 @@ func Generate(P *mir.Program) *FasmProgram {
 			}
 		}
 	}
+	if outname == "" {
+		outname = P.Name
+	}
 	return &FasmProgram{
 		Contents: output.String(),
-		Name:     P.Name,
+		Name:     outname,
 	}
 }
 
